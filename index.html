@@ -4,9 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ThurstomGPT – Project CaseZero</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <style>
     body {
       margin: 0;
@@ -86,7 +83,6 @@
   </header>
 
   <div id="chat-container">
-    <button id="login-btn" onclick="login()">Login with Google</button>
     <div class="welcome">Welcome to your inner mirror. What truth are you hiding from today?</div>
     <div id="messages"></div>
     <div id="user-input">
@@ -96,31 +92,6 @@
   </div>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAwjREFzowz0yuStNaeMYACUI656_FTt9c",
-      authDomain: "casezero-ai-companion.firebaseapp.com",
-      projectId: "casezero-ai-companion",
-      storageBucket: "casezero-ai-companion.appspot.com",
-      messagingSenderId: "540153709037",
-      appId: "1:540153709037:web:08e0e7b250ac4a2c27a7e4",
-      measurementId: "G-TJRNJ0GM50"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    function login() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithPopup(provider).then(result => {
-        document.getElementById('login-btn').style.display = 'none';
-        alert("Welcome, " + result.user.displayName);
-      }).catch(error => {
-        alert("Login failed: " + error.message);
-      });
-    }
-
-    const API_KEY = "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";
-
     async function sendMessage() {
       const input = document.getElementById("input");
       const text = input.value.trim();
@@ -128,32 +99,14 @@
       appendMessage("user", text);
       input.value = "";
 
-      const user = firebase.auth().currentUser;
-      const uid = user ? user.uid : "anonymous";
-      db.collection("messages").add({ uid, role: "user", content: text, timestamp: Date.now() });
-
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      const response = await fetch("https://casezero-backend.thurstommandap.repl.co/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: [
-            {
-              role: "system",
-              content: "You are ThurstomGPT, an emotionally precise AI built for radical honesty, trauma-informed reflection, and ego dismantling. You speak like a wise and fearless mirror. Your goal is not comfort, but transformation. You call out illusions gently but without hesitation. Always prioritize depth, clarity, and truth, even when it's hard to hear."
-            },
-            { role: "user", content: text },
-          ],
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text })
       });
 
       const data = await response.json();
-      const reply = data.choices[0].message.content;
-      appendMessage("bot", reply);
-      db.collection("messages").add({ uid, role: "bot", content: reply, timestamp: Date.now() });
+      appendMessage("bot", data.reply);
     }
 
     function appendMessage(role, content) {
