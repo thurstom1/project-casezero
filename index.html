@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ThurstomGPT – Project CaseZero</title>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js"></script>
   <style>
     body {
       margin: 0;
@@ -83,6 +86,7 @@
   </header>
 
   <div id="chat-container">
+    <button id="login-btn" onclick="login()">Login with Google</button>
     <div class="welcome">Welcome to your inner mirror. What truth are you hiding from today?</div>
     <div id="messages"></div>
     <div id="user-input">
@@ -92,6 +96,26 @@
   </div>
 
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAwjREFzowz0yuStNaeMYACUI656_FTt9c",
+      authDomain: "casezero-ai-companion.firebaseapp.com",
+      projectId: "casezero-ai-companion",
+      storageBucket: "casezero-ai-companion.appspot.com",
+      messagingSenderId: "540153709037",
+      appId: "1:540153709037:web:08e0e7b250ac4a2c27a7e4",
+      measurementId: "G-TJRNJ0GM50"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function login() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).then(result => {
+        document.getElementById('login-btn').style.display = 'none';
+      });
+    }
+
     async function sendMessage() {
       const input = document.getElementById("input");
       const text = input.value.trim();
