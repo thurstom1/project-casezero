@@ -1,51 +1,169 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project CaseZero</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f9f9f9;
-            color: #333;
-        }
-        header {
-            background: #111827;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        section {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        h1, h2 {
-            color: #1f2937;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThurstomGPT – Project CaseZero</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      color: #111;
+    }
+    header {
+      background-color: #111827;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    #chat-container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    #messages {
+      max-height: 500px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .user {
+      background: #dbeafe;
+      align-self: flex-end;
+    }
+    .bot {
+      background: #fef3c7;
+      align-self: flex-start;
+    }
+    #user-input {
+      display: flex;
+      gap: 10px;
+    }
+    #input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #1f2937;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #374151;
+    }
+    .welcome {
+      text-align: center;
+      font-style: italic;
+      margin-bottom: 20px;
+      color: #4b5563;
+    }
+    #login-btn {
+      background: #2563eb;
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Project CaseZero</h1>
-        <p>AI-Augmented Ego Dismantling Model by Thurstom R. Mandap</p>
-    </header>
-    <section>
-        <h2>Overview</h2>
-        <p>This is the official prototype page for Project CaseZero, a revolutionary framework designed to support deep inner work, emotional healing, and ego dismantling using AI reflection.</p>
-        <h2>Mission</h2>
-        <p>To bring forward a global model of emotional truth-seeking that can dismantle even the strongest ego illusions.</p>
-        <h2>Vision</h2>
-        <p>A world where even the most unreachable minds can face themselves, heal, and transform—guided by tools born from human courage and AI precision.</p>
-        <h2>About Thurstom R. Mandap</h2>
-        <p>Top 0.03% globally in AI-assisted emotional reflection. A Filipino pioneer in radical honesty, shadow integration, and transcendent empathy.</p>
-    </section>
+  <header>
+    <h1>ThurstomGPT – Project CaseZero</h1>
+    <p>AI Companion for Ego Dismantling and Radical Self-Reflection</p>
+  </header>
+
+  <div id="chat-container">
+    <button id="login-btn" onclick="login()">Login with Google</button>
+    <div class="welcome">Welcome to your inner mirror. What truth are you hiding from today?</div>
+    <div id="messages"></div>
+    <div id="user-input">
+      <input type="text" id="input" placeholder="Ask something deep…" />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAwjREFzowz0yuStNaeMYACUI656_FTt9c",
+      authDomain: "casezero-ai-companion.firebaseapp.com",
+      projectId: "casezero-ai-companion",
+      storageBucket: "casezero-ai-companion.appspot.com",
+      messagingSenderId: "540153709037",
+      appId: "1:540153709037:web:08e0e7b250ac4a2c27a7e4",
+      measurementId: "G-TJRNJ0GM50"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function login() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider).then(result => {
+        document.getElementById('login-btn').style.display = 'none';
+        alert("Welcome, " + result.user.displayName);
+      }).catch(error => {
+        alert("Login failed: " + error.message);
+      });
+    }
+
+    const API_KEY = "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";
+
+    async function sendMessage() {
+      const input = document.getElementById("input");
+      const text = input.value.trim();
+      if (!text) return;
+      appendMessage("user", text);
+      input.value = "";
+
+      const user = firebase.auth().currentUser;
+      const uid = user ? user.uid : "anonymous";
+      db.collection("messages").add({ uid, role: "user", content: text, timestamp: Date.now() });
+
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: "You are ThurstomGPT, an emotionally precise AI built for radical honesty, trauma-informed reflection, and ego dismantling. You speak like a wise and fearless mirror. Your goal is not comfort, but transformation. You call out illusions gently but without hesitation. Always prioritize depth, clarity, and truth, even when it's hard to hear."
+            },
+            { role: "user", content: text },
+          ],
+        }),
+      });
+
+      const data = await response.json();
+      const reply = data.choices[0].message.content;
+      appendMessage("bot", reply);
+      db.collection("messages").add({ uid, role: "bot", content: reply, timestamp: Date.now() });
+    }
+
+    function appendMessage(role, content) {
+      const messages = document.getElementById("messages");
+      const msg = document.createElement("div");
+      msg.className = `message ${role}`;
+      msg.textContent = content;
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
 </body>
 </html>
